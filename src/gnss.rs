@@ -1,7 +1,7 @@
 use rand::Rng;
 use serde::Serialize;
 
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct GnssStatus {
     pub fix: bool,
     pub fix_type: String,
@@ -16,26 +16,45 @@ pub struct GnssStatus {
     pub rtk_status: String,
 }
 
-pub fn get_gnss_status() -> GnssStatus {
-    let mut rng = rand::rng();
+impl GnssStatus {
+    pub fn new() -> Self {
+        Self {
+            fix: true,
+            fix_type: "3D".to_string(),
 
-    // Simulovaná pevná poloha RSU + drobný GNSS šum
-    let base_latitude = 49.5928809;
-    let base_longitude = 17.2566705;
+            latitude: 49.5928809,
+            longitude: 17.2566705,
+            altitude: 220.4,
 
-    GnssStatus {
-        fix: true,
-        fix_type: "3D".to_string(),
+            satellites: 22,
+            hdop: 0.7,
 
-        latitude: base_latitude + rng.random_range(-0.000002..0.000002),
-        longitude: base_longitude + rng.random_range(-0.000002..0.000002),
+            rtk_status: "FIXED".to_string(),
+        }
+    }
 
-        altitude: 220.4 + rng.random_range(-0.2..0.2),
+    pub fn update(&mut self) {
+        let mut rng = rand::rng();
 
-        satellites: rng.random_range(18..27),
+        let base_latitude = 49.5928809;
+        let base_longitude = 17.2566705;
 
-        hdop: rng.random_range(0.5..0.9),
+        self.latitude =
+            base_latitude
+            + rng.random_range(-0.000002..0.000002);
 
-        rtk_status: "FIXED".to_string(),
+        self.longitude =
+            base_longitude
+            + rng.random_range(-0.000002..0.000002);
+
+        self.altitude =
+            220.4
+            + rng.random_range(-0.2..0.2);
+
+        self.satellites =
+            rng.random_range(18..28);
+
+        self.hdop =
+            rng.random_range(0.5..0.9);
     }
 }
