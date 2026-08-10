@@ -20,8 +20,6 @@ use axum::{
     Router,
 };
 
-use rand::Rng;
-
 use tower_http::cors::CorsLayer;
 
 use state::AppState;
@@ -32,6 +30,8 @@ use v2x::{
     V2xMessage,
     V2xStatus,
 };
+
+use crate::v2x::V2xSimulator;
 
 async fn api_system(
     State(state): State<AppState>,
@@ -113,9 +113,114 @@ async fn gnss_task(
 async fn v2x_task(
     state: AppState,
 ) {
+    let mut simulator =
+        V2xSimulator::new();
+
+
     loop {
-        let message =
-            V2xMessage::random();
+
+        // 500 ms update
+        simulator.update_vehicles(
+            0.5
+        );
+
+
+        // ====================================================
+        // CAM
+        // ====================================================
+
+        let cam_messages =
+            simulator
+                .generate_cam_messages();
+
+
+        let cam_count =
+            cam_messages.len();
+
+
+        for message in
+            cam_messages
+        {
+
+            {
+                let mut v2x =
+                    state.v2x
+                        .write()
+                        .await;
+
+
+                v2x.rx_packets += 1;
+
+                v2x.cam_count += 1;
+            }
+
+
+            let _ =
+                state.v2x_tx
+                    .send(
+                        message
+                    );
+        }
+
+
+        // ====================================================
+        // DENM / SRV
+        // ====================================================
+
+        if let Some(message) =
+            simulator
+                .random_special_message()
+        {
+
+            {
+                let mut v2x =
+                    state.v2x
+                        .write()
+                        .await;
+
+
+                if message.direction
+                    ==
+                    "RX"
+                {
+
+                    v2x.rx_packets += 1;
+                }
+                else {
+
+                    v2x.tx_packets += 1;
+                }
+
+
+                match message
+                    .message_type
+                    .as_str()
+                {
+
+                    "DENM" => {
+                        v2x.denm_count += 1;
+                    }
+
+                    "SRV" => {
+                        v2x.srv_count += 1;
+                    }
+
+                    _ => {}
+                }
+            }
+
+
+            let _ =
+                state.v2x_tx
+                    .send(
+                        message
+                    );
+        }
+
+
+        // ====================================================
+        // RATE
+        // ====================================================
 
         {
             let mut v2x =
@@ -123,50 +228,21 @@ async fn v2x_task(
                     .write()
                     .await;
 
-            match message.direction.as_str() {
-                "RX" => {
-                    v2x.rx_packets += 1;
-                }
 
-                "TX" => {
-                    v2x.tx_packets += 1;
-                }
+            // 6 CAM každých 0.5 s
+            // => cca 12 RX/s
 
-                _ => {}
-            }
-
-            match message.message_type.as_str() {
-                "CAM" => {
-                    v2x.cam_count += 1;
-                }
-
-                "DENM" => {
-                    v2x.denm_count += 1;
-                }
-
-                "SRV" => {
-                    v2x.srv_count += 1;
-                }
-
-                _ => {}
-            }
+            v2x.rx_per_second =
+                cam_count as f32
+                *
+                2.0;
         }
 
-        let _ =
-            state.v2x_tx
-                .send(message);
-
-        let delay = {
-            let mut rng =
-                rand::rng();
-
-            rng.random_range(
-                100..800
-            )
-        };
 
         tokio::time::sleep(
-            Duration::from_millis(delay)
+            Duration::from_millis(
+                500
+            )
         )
         .await;
     }
