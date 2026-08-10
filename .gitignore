@@ -1,0 +1,46 @@
+# Rust build output
+target/
+
+# Cargo lock
+
+# IDE
+.vscode/
+.idea/
+
+# Visual Studio
+.vs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# Environment variables
+.env
+.env.*
+
+# Coverage
+coverage/
+*.profraw
+*.profdata
+
+# Rust Analyzer
+.rust-analyzer/
+
+# Generated documentation
+/doc/
+
+# Test binaries
+*.exe
+*.dll
+*.so
+*.dylib

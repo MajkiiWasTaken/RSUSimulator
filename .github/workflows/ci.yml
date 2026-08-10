@@ -1,0 +1,43 @@
+name: Rust
+
+on:
+  push:
+    branches:
+      - main
+      - rsu
+      - feature/**
+      - release/**
+      - hotfix/**
+
+  pull_request:
+    branches:
+      - main
+      - rsu
+      - feature/**
+      - release/**
+      - hotfix/**
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        project:
+          - rsu_fw
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y libudev-dev pkg-config
+
+      - name: Build ${{ matrix.project }}
+        working-directory: ${{ matrix.project }}
+        run: cargo build --verbose
+
+      - name: Test ${{ matrix.project }}
+        working-directory: ${{ matrix.project }}
+        run: cargo test --verbose
