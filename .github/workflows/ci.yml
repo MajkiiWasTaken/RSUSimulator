@@ -22,12 +22,6 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        project:
-          - rsu_fw
-
     steps:
       - uses: actions/checkout@v4
 
