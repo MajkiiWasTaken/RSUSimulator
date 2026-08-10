@@ -22,6 +22,8 @@ use axum::{
 
 use rand::Rng;
 
+use tower_http::cors::CorsLayer;
+
 use state::AppState;
 
 use system::SystemStatus;
@@ -279,31 +281,13 @@ async fn main() {
     );
 
     let app =
-    Router::new()
-
-        .route(
-            "/api/system",
-            get(api_system)
-        )
-
-        .route(
-            "/api/gnss",
-            get(api_gnss)
-        )
-
-        .route(
-            "/api/v2x",
-            get(api_v2x)
-        )
-
-        .route(
-            "/ws",
-            get(ws_handler)
-        )
-
-        .with_state(
-            state
-        );
+        Router::new()
+            .route("/api/system", get(api_system))
+            .route("/api/gnss", get(api_gnss))
+            .route("/api/v2x", get(api_v2x))
+            .route("/ws", get(ws_handler))
+            .layer(CorsLayer::permissive())
+            .with_state(state);
 
     let listener =
         tokio::net::TcpListener::bind(
