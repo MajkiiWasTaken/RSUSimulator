@@ -2,6 +2,18 @@ mod state;
 mod system;
 mod gnss;
 mod v2x;
+mod network;
+mod services;
+mod hardware;
+mod logs;
+mod settings;
+
+use network::NetworkStatus;
+
+use services::ServiceStatus;
+use hardware::HardwareComponent;
+use logs::LogEntry;
+use settings::RsuSettings;
 
 use std::time::Duration;
 
@@ -70,6 +82,56 @@ async fn api_v2x(
             .clone();
 
     Json(v2x)
+}
+
+
+async fn api_network(
+    State(state): State<AppState>,
+) -> Json<NetworkStatus> {
+
+    let network =
+        state.network
+            .read()
+            .await
+            .clone();
+
+    Json(network)
+}
+
+
+async fn api_services()
+    -> Json<Vec<ServiceStatus>>
+{
+    Json(
+        services::get_services()
+    )
+}
+
+
+async fn api_hardware()
+    -> Json<Vec<HardwareComponent>>
+{
+    Json(
+        hardware::get_hardware()
+    )
+}
+
+
+async fn api_logs()
+    -> Json<Vec<LogEntry>>
+{
+    Json(
+        logs::get_logs()
+    )
+}
+
+
+async fn api_settings()
+    -> Json<RsuSettings>
+{
+    Json(
+        settings::get_settings()
+    )
 }
 
 async fn system_task(
@@ -248,6 +310,26 @@ async fn v2x_task(
     }
 }
 
+async fn network_task(
+    state: AppState,
+) {
+    loop {
+        {
+            let mut network =
+                state.network
+                    .write()
+                    .await;
+
+            network.update();
+        }
+
+        tokio::time::sleep(
+            Duration::from_secs(1)
+        )
+        .await;
+    }
+}
+
 async fn ws_handler(
     ws: WebSocketUpgrade,
     State(state): State<AppState>,
@@ -356,12 +438,42 @@ async fn main() {
         )
     );
 
+    tokio::spawn(
+        network_task(
+            state.clone()
+        )
+    );
+
     let app =
         Router::new()
             .route("/api/system", get(api_system))
             .route("/api/gnss", get(api_gnss))
             .route("/api/v2x", get(api_v2x))
             .route("/ws", get(ws_handler))
+            .route(
+                "/api/network",
+                get(api_network)
+            )
+
+            .route(
+                "/api/services",
+                get(api_services)
+            )
+
+            .route(
+                "/api/hardware",
+                get(api_hardware)
+            )
+
+            .route(
+                "/api/logs",
+                get(api_logs)
+            )
+
+            .route(
+                "/api/settings",
+                get(api_settings)
+            )
             .layer(CorsLayer::permissive())
             .with_state(state);
 

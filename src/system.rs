@@ -1,3 +1,12 @@
+/************************************************
+* File: system.rs
+* Author: Michal Švrček
+*
+* RSU system statistics
+*
+* ver. 1.0.0.4
+*************************************************/
+
 use rand::Rng;
 use serde::Serialize;
 
@@ -5,6 +14,7 @@ use serde::Serialize;
 pub struct SystemStatus {
     pub rsu_id: String,
     pub hostname: String,
+
     pub uptime: u64,
 
     pub cpu_usage: f32,
@@ -17,8 +27,11 @@ pub struct SystemStatus {
 impl SystemStatus {
     pub fn new() -> Self {
         Self {
-            rsu_id: "RSU-SIM-001".to_string(),
-            hostname: "rsu-simulator".to_string(),
+            rsu_id:
+                "RSU-SIM-001".to_string(),
+
+            hostname:
+                "rsu-simulator".to_string(),
 
             uptime: 0,
 
@@ -31,17 +44,24 @@ impl SystemStatus {
     }
 
     pub fn update(&mut self) {
-        let mut rng = rand::rng();
+        let mut rng =
+            rand::rng();
 
         self.uptime += 1;
 
         self.cpu_usage =
-            rng.random_range(5.0..35.0);
+            rng.random_range(
+                5.0..40.0
+            );
 
         self.cpu_temperature =
-            rng.random_range(40.0..60.0);
+            rng.random_range(
+                40.0..60.0
+            );
 
         self.ram_used_mb =
-            rng.random_range(700..1500);
+            rng.random_range(
+                700..1500
+            );
     }
 }

@@ -7,6 +7,7 @@ use tokio::sync::{
 
 use crate::{
     gnss::GnssStatus,
+    network::NetworkStatus,
     system::SystemStatus,
     v2x::{
         V2xMessage,
@@ -16,11 +17,20 @@ use crate::{
 
 #[derive(Clone)]
 pub struct AppState {
-    pub system: Arc<RwLock<SystemStatus>>,
-    pub gnss: Arc<RwLock<GnssStatus>>,
-    pub v2x: Arc<RwLock<V2xStatus>>,
+    pub system:
+        Arc<RwLock<SystemStatus>>,
 
-    pub v2x_tx: broadcast::Sender<V2xMessage>,
+    pub gnss:
+        Arc<RwLock<GnssStatus>>,
+
+    pub v2x:
+        Arc<RwLock<V2xStatus>>,
+
+    pub network:
+        Arc<RwLock<NetworkStatus>>,
+
+    pub v2x_tx:
+        broadcast::Sender<V2xMessage>,
 }
 
 impl AppState {
@@ -29,23 +39,33 @@ impl AppState {
             broadcast::channel(256);
 
         Self {
-            system: Arc::new(
-                RwLock::new(
-                    SystemStatus::new()
-                )
-            ),
+            system:
+                Arc::new(
+                    RwLock::new(
+                        SystemStatus::new()
+                    )
+                ),
 
-            gnss: Arc::new(
-                RwLock::new(
-                    GnssStatus::new()
-                )
-            ),
+            gnss:
+                Arc::new(
+                    RwLock::new(
+                        GnssStatus::new()
+                    )
+                ),
 
-            v2x: Arc::new(
-                RwLock::new(
-                    V2xStatus::new()
-                )
-            ),
+            v2x:
+                Arc::new(
+                    RwLock::new(
+                        V2xStatus::new()
+                    )
+                ),
+
+            network:
+                Arc::new(
+                    RwLock::new(
+                        NetworkStatus::new()
+                    )
+                ),
 
             v2x_tx,
         }
