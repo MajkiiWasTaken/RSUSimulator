@@ -1,3 +1,12 @@
+/************************************************
+* File: gnss.rs 
+* Author: Michal Švrček
+* 
+* RSU gnss logic
+*
+* ver. 1.0.0.4
+*************************************************/
+
 use rand::Rng;
 use serde::Serialize;
 

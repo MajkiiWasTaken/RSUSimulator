@@ -1,3 +1,12 @@
+/************************************************
+* File: main.rs 
+* Author: Michal Švrček
+* 
+* RSU main simulation logic 
+*
+* ver. 1.0.0.4
+*************************************************/
+
 mod state;
 mod system;
 mod gnss;

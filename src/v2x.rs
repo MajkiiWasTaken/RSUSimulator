@@ -1,3 +1,12 @@
+/************************************************
+* File: v2x.rs 
+* Author: Michal Švrček
+* 
+* RSU v2x logic ensuring proper simulation data
+*
+* ver. 1.0.0.4
+*************************************************/
+
 use rand::Rng;
 use serde::Serialize;
 
@@ -442,8 +451,7 @@ fn keep_vehicle_near_rsu(
         .sqrt();
 
 
-    // když auto ujede moc daleko,
-    // otočíme ho zpět směrem k RSU
+    // when vehicle travels too far from the rsu, flip its direction
 
     if distance > 500.0 {
 
