@@ -300,8 +300,8 @@ async fn v2x_task(
                     .await;
 
 
-            // 6 CAM každých 0.5 s
-            // => cca 12 RX/s
+            // 6 CAM every 0.5 s
+            // => approx 12 RX/s
 
             v2x.rx_per_second =
                 cam_count as f32

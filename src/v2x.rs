@@ -187,7 +187,6 @@ impl V2xSimulator {
             &mut self.vehicles
         {
 
-            // lehká náhodná změna směru
             vehicle.heading +=
                 rng.random_range(
                     -4.0..4.0
@@ -204,7 +203,6 @@ impl V2xSimulator {
             }
 
 
-            // lehká změna rychlosti
             vehicle.speed_kmh +=
                 rng.random_range(
                     -2.0..2.0
